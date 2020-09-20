@@ -11,7 +11,7 @@ import async_timeout
 
 propagate = ...
 forever = ...
-__version__ = '1.0.0'
+__version__ = '1.1.0'
 logger = logging.getLogger(__name__)
 
 
