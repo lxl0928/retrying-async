@@ -8,7 +8,7 @@ Installation
 
 .. code-block:: shell
 
-    pip install async_retrying
+    pip install retrying-async==1.1.0 -i https://pypi.org/pypi
 
 Usage
 -----
@@ -21,7 +21,7 @@ Usage
 
     counter = 0
 
-    @retry
+    @retry(attempts=3, delay=3)
     async def fn():
         global counter
 

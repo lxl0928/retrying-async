@@ -44,7 +44,7 @@ def callback(attempt, exc, args, kwargs, delay=0.5, *, loop):
     return retry
 
 
-def retry(*, fn=None, attempts=3, delay=1, timeout=30,
+def retry(*, fn=None, attempts=3, delay=0.5, timeout=30,
           immutable=False, cls=False, kwargs=False, loop=None,
           callback=callback, fallback=RetryError, retry_exceptions=(Exception,),
           fatal_exceptions=(asyncio.CancelledError,)
