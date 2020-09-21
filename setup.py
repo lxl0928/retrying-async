@@ -28,14 +28,8 @@ setup(
     url='https://github.com/lxl0928/retrying_async',
     description='Simple retrying for asyncio',
     long_description=read('README.rst'),
-    install_requires=[
-        'async_timeout',
-    ],
-    extras_require={
-        ':python_version=="3.5"': ['asyncio'],
-        ':python_version=="3.6"': ['asyncio'],
-        ':python_version=="3.7"': ['asyncio'],
-    },
+    install_requires=['async_timeout'],
+    extras_require={},
     py_modules=['retrying_async'],
     include_package_data=True,
     zip_safe=False,
