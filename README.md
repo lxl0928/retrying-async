@@ -3,12 +3,10 @@
 # Install 
 
 ```
-    pip install retrying-async==2.0.0 -i https://pypi.org/pypi
+ pip install retrying-async==2.0.0 -i https://pypi.org/pypi
 ```
 
-# Usage
-
-## Example
+# Example
 
 ```
 # coding: utf-8
@@ -31,7 +29,7 @@ if __name__ == '__main__':
 
 ```
 
-## Example Outpu
+# Example Output
 
 ```
 1654007336: 200
