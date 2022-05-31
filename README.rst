@@ -8,7 +8,7 @@ Installation
 
 .. code-block:: shell
 
-    pip install retrying-async==1.1.0 -i https://pypi.org/pypi
+    pip install retrying-async==2.0.0 -i https://pypi.org/pypi
 
 Usage
 -----

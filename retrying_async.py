@@ -11,7 +11,7 @@ import async_timeout
 
 propagate = ...
 forever = ...
-__version__ = '1.2.0'
+__version__ = '2.0.0'
 logger = logging.getLogger(__name__)
 
 
@@ -44,11 +44,11 @@ def callback(attempt, exc, args, kwargs, delay=0.5, *, loop):
     return retry
 
 
-def retry(*, fn=None, attempts=3, delay=0.5, timeout=30,
-          immutable=False, cls=False, kwargs=False, loop=None,
-          callback=callback, fallback=RetryError, retry_exceptions=(Exception,),
-          fatal_exceptions=(asyncio.CancelledError,)
-          ):
+def retry(
+        *, fn=None, attempts=3, delay=0.5, timeout=30, immutable=False,
+        callback=callback, fallback=RetryError, retry_exceptions=(Exception,),
+        fatal_exceptions=(asyncio.CancelledError,)
+):
     """
 
     :param fn: 被装饰的函数
@@ -56,9 +56,6 @@ def retry(*, fn=None, attempts=3, delay=0.5, timeout=30,
     :param delay: 添加每次方法执行之间的等待时间
     :param timeout:
     :param immutable:
-    :param cls:
-    :param kwargs:
-    :param loop:
     :param callback:
     :param fallback:
     :param retry_exceptions:
@@ -69,24 +66,7 @@ def retry(*, fn=None, attempts=3, delay=0.5, timeout=30,
         @wraps(fn)
         @asyncio.coroutine
         def wrapped(*fn_args, **fn_kwargs):
-            if isinstance(loop, str):
-                assert cls ^ kwargs, 'choose self.loop or kwargs["loop"]'
-
-                if cls:
-                    _self = getattr(unpartial(fn), '__self__', None)
-
-                    if _self is None:
-                        assert fn_args, 'seems not unbound function'
-                        _self = fn_args[0]
-
-                    _loop = getattr(_self, loop)
-                elif kwargs:
-                    _loop = fn_kwargs[loop]
-            elif loop is None:
-                _loop = asyncio.get_event_loop()
-            else:
-                _loop = loop
-
+            _loop = asyncio.get_event_loop()
             if (
                     timeout is not None and
                     asyncio.TimeoutError not in retry_exceptions
@@ -97,31 +77,13 @@ def retry(*, fn=None, attempts=3, delay=0.5, timeout=30,
 
             attempt = 1
 
-            if cls:
-                assert fn_args
-
-                self, *fn_args = fn_args
-
-                fn_args = tuple(fn_args)
-
             while True:
                 if immutable:
                     _fn_args = copy.deepcopy(fn_args)
 
-                    kwargs_loop = isinstance(loop, str) and kwargs
-
-                    if kwargs_loop:
-                        obj = fn_kwargs.pop(loop)
-
                     _fn_kwargs = copy.deepcopy(fn_kwargs)
-
-                    if kwargs_loop:
-                        fn_kwargs[loop] = _fn_kwargs[loop] = obj
                 else:
                     _fn_args, _fn_kwargs = fn_args, fn_kwargs
-
-                if cls:
-                    _fn_args = (self,) + _fn_args
 
                 try:
                     ret = fn(*_fn_args, **_fn_kwargs)
@@ -135,7 +97,7 @@ def retry(*, fn=None, attempts=3, delay=0.5, timeout=30,
                                 'Can\'t set timeout for non coroutinefunction',
                             )
 
-                        with async_timeout.timeout(timeout, loop=_loop):
+                        with async_timeout.timeout(timeout):
                             ret = yield from ret
 
                     return ret
@@ -169,7 +131,7 @@ def retry(*, fn=None, attempts=3, delay=0.5, timeout=30,
                             raise fallback from exc
 
                         if callable(fallback):
-                            ret = fallback(fn_args, fn_kwargs, loop=_loop)
+                            ret = fallback(fn_args, fn_kwargs)
 
                             if asyncio.iscoroutinefunction(unpartial(fallback)):  # noqa
                                 ret = yield from ret
