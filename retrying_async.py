@@ -39,7 +39,7 @@ def is_exception(obj):
 
 @asyncio.coroutine
 def callback(attempt, exc, args, kwargs, delay=0.5, *, loop):
-    yield from asyncio.sleep(attempt * delay, loop=loop)
+    yield from asyncio.sleep(delay, loop=loop)
 
     return retry
 
