@@ -1,10 +1,9 @@
 # coding: utf-8
-
 import copy
 import inspect
 import logging
 import asyncio
-
+import random
 from functools import wraps
 
 import async_timeout
@@ -45,7 +44,7 @@ def callback(attempt, exc, args, kwargs, delay=0.5, *, loop):
 
 
 def retry(
-        *, fn=None, attempts=3, delay=0.5, timeout=30, immutable=False,
+        *, fn=None, attempts=3, delay=0.5, max_delay=None, backoff=1, jitter=0, timeout=30, immutable=False,
         callback=callback, fallback=RetryError, retry_exceptions=(Exception,),
         fatal_exceptions=(asyncio.CancelledError,)
 ):
@@ -54,10 +53,14 @@ def retry(
     :param fn: 被装饰的函数
     :param attempts: 设置最大重试次数
     :param delay: 添加每次方法执行之间的等待时间
+    :param max_delay: the maximum value of delay. default: None (no limit).
+    :param backoff: multiplier applied to delay between attempts. default: 1 (no backoff).
+    :param jitter: extra seconds added to delay between attempts. default: 0.
+                   fixed if a number, random if a range tuple (min, max)
     :param timeout:
     :param immutable:
     :param callback:
-    :param fallback:
+    :param fallback: a callable function or a value to return when all attempts are tried.
     :param retry_exceptions:
     :param fatal_exceptions:
     :return:
@@ -76,7 +79,7 @@ def retry(
                 _retry_exceptions = retry_exceptions
 
             attempt = 1
-
+            _delay = delay
             while True:
                 if immutable:
                     _fn_args = copy.deepcopy(fn_args)
@@ -148,9 +151,15 @@ def retry(
                     )
 
                     ret = callback(
-                        attempt, exc, fn_args, fn_kwargs, delay=delay, loop=_loop,
+                        attempt, exc, fn_args, fn_kwargs, delay=_delay, loop=_loop,
                     )
-
+                    _delay *= backoff
+                    if isinstance(jitter, tuple):
+                        _delay += random.uniform(*jitter)
+                    else:
+                        _delay += jitter
+                    if max_delay is not None:
+                        _delay = min(_delay, max_delay)
                     attempt += 1
 
                     if asyncio.iscoroutinefunction(unpartial(callback)):
