@@ -36,8 +36,8 @@ def is_exception(obj):
     )
 
 
-@asyncio.coroutine
-def callback(attempt, exc, args, kwargs, delay=0.5, *, loop):
+# https://stackoverflow.com/questions/74345065/attributeerror-module-asyncio-has-no-attribute-coroutine-in-python-3-11
+async def callback(attempt, exc, args, kwargs, delay=0.5, *, loop):
     yield from asyncio.sleep(delay, loop=loop)
 
     return retry
