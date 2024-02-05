@@ -44,9 +44,9 @@ def callback(attempt, exc, args, kwargs, delay=0.5, *, loop):
 
 
 def retry(
-        *, fn=None, attempts=3, delay=0.5, max_delay=None, backoff=1, jitter=0, timeout=30, immutable=False,
+        *, fn=None, attempts=3, delay=0.5, max_delay=None, backoff=1, jitter=0, timeout=None, immutable=False,
         callback=callback, fallback=RetryError, retry_exceptions=(Exception,),
-        fatal_exceptions=(asyncio.CancelledError,)
+        fatal_exceptions=(asyncio.CancelledError,), logger=logger
 ):
     """
 
@@ -63,6 +63,7 @@ def retry(
     :param fallback: a callable function or a value to return when all attempts are tried.
     :param retry_exceptions:
     :param fatal_exceptions:
+    :param logger: 
     :return:
     """
     def wrapper(fn):
